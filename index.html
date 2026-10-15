@@ -1,0 +1,498 @@
+<!doctype html>
+<html lang="uz">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ustoz Do'koni</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Onest:wght@400;500;600&display=swap">
+<style>
+/* Layout: telefon uchun bitta ustunli katalog — yopishqoq sarlavha, toifa chiplari, 2 ustunli kartochkalar, pastdan ochiladigan tovar oynasi */
+:root{
+  --paper:#F6F7F9;      /* oq doska */
+  --card:#FFFFFF;
+  --ink:#16203A;        /* marker siyohi */
+  --muted:#5D6680;
+  --line:#DCE0EA;
+  --blue:#1D4ED8;       /* ko'k marker — asosiy */
+  --blue-ink:#FFFFFF;
+  --red:#D7263D;        /* qizil marker — narx, belgi */
+  --green:#0F8A5F;      /* yashil marker — Uzum, bepul */
+  --tile:#E8EDFB;
+  --sheet-shade:rgba(10,15,30,.45);
+  --display:"Bricolage Grotesque", "Arial Narrow", system-ui, sans-serif;
+  --body:"Onest", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#0F1424;--card:#171E33;--ink:#EEF1F8;--muted:#9AA3BC;--line:#28314B;
+  --blue:#6E95FF;--blue-ink:#0B1020;--red:#FF6B7D;--green:#3CCB92;--tile:#1F2944;--sheet-shade:rgba(0,0,0,.6);color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#0F1424;--card:#171E33;--ink:#EEF1F8;--muted:#9AA3BC;--line:#28314B;
+  --blue:#6E95FF;--blue-ink:#0B1020;--red:#FF6B7D;--green:#3CCB92;--tile:#1F2944;--sheet-shade:rgba(0,0,0,.6);color-scheme:dark}
+
+*{box-sizing:border-box}
+html{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0}
+[hidden]{display:none!important}
+img{max-width:100%}
+body{background:var(--paper);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.45}
+.wrap{max-width:760px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 32px}
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--paper);padding-block:14px 10px;display:grid;gap:10px;border-bottom:1px solid var(--line)}
+.brand{display:flex;align-items:center;gap:10px;min-width:0}
+.logo{width:40px;height:40px;border-radius:10px;background:var(--blue);color:var(--blue-ink);display:grid;place-items:center;font-family:var(--display);font-weight:800;font-size:20px;flex:none}
+.brand h1{font-family:var(--display);font-weight:800;font-size:22px;margin:0;letter-spacing:-.01em;line-height:1.1}
+.brand p{margin:0;color:var(--muted);font-size:13px}
+.search{display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:0 12px}
+.search input{flex:1;min-width:0;border:0;background:transparent;color:var(--ink);font:inherit;padding:11px 0;outline:none}
+.search:focus-within{border-color:var(--blue)}
+.chips{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;border:1px solid var(--line);background:var(--card);color:var(--ink);font:500 13px var(--body);padding:7px 12px;border-radius:999px;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.chip:focus-visible,.btn:focus-visible,.card:focus-visible,.sort:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+
+.note{margin-top:14px;display:flex;gap:10px;align-items:flex-start;background:var(--card);border:1px dashed var(--green);border-radius:12px;padding:10px 12px;font-size:13.5px}
+.note b{color:var(--green)}
+.bar{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:16px 0 10px}
+.bar .count{color:var(--muted);font-size:13px}
+.sort{border:1px solid var(--line);background:var(--card);color:var(--ink);font:inherit;font-size:13px;padding:6px 8px;border-radius:8px}
+
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+@media (min-width:620px){.grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden;display:flex;flex-direction:column;cursor:pointer;text-align:left;font:inherit;color:inherit;padding:0}
+.card:hover{border-color:var(--blue)}
+.tile{position:relative;aspect-ratio:4/3;max-width:100%;background:var(--tile);display:grid;place-items:center;overflow:hidden}
+.tile svg{width:44%;height:auto;color:var(--blue)}
+.tile img{width:100%;height:100%;object-fit:cover}
+.tile .en{position:absolute;left:8px;bottom:8px;font:700 10.5px var(--body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);background:var(--card);padding:3px 6px;border-radius:5px;max-width:calc(100% - 16px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tile .tag{position:absolute;right:8px;top:8px;font:600 11px var(--body);color:#fff;background:var(--red);padding:3px 7px;border-radius:6px}
+.body{padding:10px 12px 12px;display:grid;gap:4px;flex:1;min-width:0}
+.name{font-weight:600;font-size:14.5px;line-height:1.3;text-wrap:balance}
+.for{color:var(--muted);font-size:12.5px}
+.price{margin-top:auto;padding-top:6px;font-family:var(--display);font-weight:800;font-size:18px;font-variant-numeric:tabular-nums;color:var(--ink)}
+.price small{font-family:var(--body);font-weight:500;font-size:12px;color:var(--muted)}
+.empty{grid-column:1/-1;text-align:center;color:var(--muted);padding:40px 0}
+
+.shade{position:fixed;inset:0;background:var(--sheet-shade);z-index:20}
+.sheet{position:fixed;left:0;right:0;bottom:0;z-index:21;background:var(--card);border-radius:18px 18px 0 0;max-height:88%;overflow-y:auto;
+  padding:8px max(16px,env(safe-area-inset-right,0px)) calc(20px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));
+  max-width:760px;margin:0 auto;animation:up .22s ease-out}
+@keyframes up{from{transform:translateY(24px);opacity:.6}to{transform:none;opacity:1}}
+@media (prefers-reduced-motion:reduce){.sheet{animation:none}}
+.grab{width:40px;height:4px;border-radius:2px;background:var(--line);margin:4px auto 12px}
+.sheet .tile{border-radius:12px;aspect-ratio:16/9}
+.sheet h2{font-family:var(--display);font-weight:800;font-size:22px;margin:14px 0 2px;line-height:1.15;text-wrap:balance}
+.sheet .bigprice{font-family:var(--display);font-weight:800;font-size:26px;font-variant-numeric:tabular-nums;margin:6px 0 10px}
+.sheet p{margin:0 0 10px;max-width:65ch}
+.sheet ul{margin:0 0 14px;padding-left:18px;display:grid;gap:4px}
+.meta{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.meta span{font-size:12px;border:1px solid var(--line);border-radius:6px;padding:3px 8px;color:var(--muted)}
+.actions{display:grid;gap:8px}
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;text-decoration:none;font:600 15px var(--body);padding:13px 14px;border-radius:12px;border:1px solid transparent;cursor:pointer}
+.btn.uzum{background:var(--green);color:#fff}
+.btn.tg{background:var(--blue);color:var(--blue-ink)}
+.btn.ghost{background:transparent;color:var(--ink);border-color:var(--line)}
+.btn[aria-disabled="true"]{opacity:.55;pointer-events:none}
+.hint{font-size:12.5px;color:var(--muted);text-align:center;margin-top:4px}
+footer{margin-top:28px;color:var(--muted);font-size:12.5px;text-align:center}
+
+/* --- savat va buyurtma --- */
+.toprow{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.cartbtn{position:relative;flex:none;border:1px solid var(--line);background:var(--card);color:var(--ink);width:44px;height:44px;border-radius:12px;display:grid;place-items:center;cursor:pointer}
+.cartbtn:focus-visible,.qbtn:focus-visible,.cartbar button:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+.badge{position:absolute;top:-6px;right:-6px;min-width:20px;height:20px;padding:0 5px;border-radius:10px;background:var(--red);color:#fff;font:600 11.5px/20px var(--body);text-align:center;font-variant-numeric:tabular-nums}
+.incart{position:absolute;left:8px;top:8px;font:600 11px var(--body);color:#fff;background:var(--green);padding:3px 7px;border-radius:6px}
+.cartbar{position:fixed;left:0;right:0;bottom:0;z-index:10;padding:10px max(16px,env(safe-area-inset-right,0px)) calc(10px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));background:linear-gradient(to top,var(--paper) 70%,transparent)}
+.cartbar button{width:100%;max-width:728px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;gap:10px;border:0;border-radius:14px;background:var(--blue);color:var(--blue-ink);font:600 15px var(--body);padding:14px 16px;cursor:pointer}
+.cartbar button span:last-child{font-variant-numeric:tabular-nums}
+body.has-cart .wrap{padding-bottom:96px}
+.qty{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.qbtn{width:36px;height:36px;border:0;background:var(--card);color:var(--ink);font:600 18px var(--body);cursor:pointer}
+.qty output{min-width:30px;text-align:center;font-weight:600;font-variant-numeric:tabular-nums}
+.addrow{display:flex;gap:8px;align-items:stretch}
+.addrow .btn{flex:1}
+.lines{display:grid;gap:10px;margin:6px 0 14px}
+.line{display:grid;grid-template-columns:52px minmax(0,1fr) auto;gap:10px;align-items:center;padding-bottom:10px;border-bottom:1px solid var(--line)}
+.line .mini{width:52px;height:52px;border-radius:10px;background:var(--tile);display:grid;place-items:center;color:var(--blue)}
+.line .mini svg{width:30px}
+.line .ln{font-weight:600;font-size:14px;line-height:1.25}
+.line .lp{color:var(--muted);font-size:12.5px;font-variant-numeric:tabular-nums}
+.sum{display:grid;gap:6px;background:var(--paper);border-radius:12px;padding:12px;margin-bottom:14px;font-variant-numeric:tabular-nums}
+.sum div{display:flex;justify-content:space-between;gap:10px}
+.sum .total{font-family:var(--display);font-weight:800;font-size:20px;border-top:1px solid var(--line);padding-top:8px}
+.sum small{color:var(--muted)}
+form.co{display:grid;gap:10px}
+.field{display:grid;gap:4px}
+.field label{font-size:13px;font-weight:600}
+.field input,.field select,.field textarea{font:inherit;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:10px;padding:11px 12px;width:100%}
+.field input:focus,.field select:focus,.field textarea:focus{outline:2px solid var(--blue);outline-offset:0;border-color:var(--blue)}
+.radios{display:grid;gap:6px}
+.radios label{display:flex;gap:8px;align-items:flex-start;border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-weight:500;cursor:pointer}
+.radios input{margin-top:3px}
+.err{color:var(--red);font-size:13px}
+.msg{white-space:pre-wrap;background:var(--paper);border:1px dashed var(--line);border-radius:12px;padding:12px;font-size:13.5px;margin-bottom:12px;user-select:all}
+.done{font-family:var(--display);font-weight:800;font-size:22px;margin:10px 0 4px}
+.sheet h3{font-family:var(--display);font-weight:800;font-size:20px;margin:8px 0 10px}
+</style>
+</head>
+<body>
+
+
+<div class="wrap">
+  <header class="top">
+    <div class="toprow">
+      <div class="brand">
+        <div class="logo" aria-hidden="true">U</div>
+        <div style="min-width:0">
+          <h1 id="shopName">Ustoz Do'koni</h1>
+          <p id="shopTag">Ingliz tili o'qituvchilari uchun dars qurollari</p>
+        </div>
+      </div>
+      <button class="cartbtn" type="button" id="cartBtn" aria-label="Savat">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 4h2l2.4 11h10.2L20 8H6.2"/><circle cx="9" cy="20" r="1.5"/><circle cx="17" cy="20" r="1.5"/></svg>
+        <span class="badge" id="badge" hidden>0</span>
+      </button>
+    </div>
+    <label class="search" for="q">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <input id="q" type="search" placeholder="Qidirish: phonics, doska, shtamp…" autocomplete="off">
+    </label>
+    <div class="chips" id="chips" role="group" aria-label="Toifalar"></div>
+  </header>
+
+  <div class="note"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true" style="flex:none;color:var(--green);margin-top:1px"><path d="M2 6h12v10H2zM14 10h4l3 3v3h-7z"/><circle cx="6" cy="18" r="2"/><circle cx="17" cy="18" r="2"/></svg><div>Ikki yo'l bilan xarid qiling: <b>shu yerda savatga solib</b> BTS orqali uyingizgacha yoki <b>Uzum Market</b>da — topshirish punktigacha bepul yetkazish.</div></div>
+
+  <div class="bar">
+    <span class="count" id="count"></span>
+    <select class="sort" id="sort" aria-label="Saralash">
+      <option value="pop">Mashhurlari</option>
+      <option value="asc">Arzonidan</option>
+      <option value="desc">Qimmatidan</option>
+    </select>
+  </div>
+
+  <main class="grid" id="grid"></main>
+
+  <footer id="foot"></footer>
+</div>
+
+<div class="cartbar" id="cartbar" hidden><button type="button" id="cartbarBtn"><span id="cbLeft">Savat</span><span id="cbRight"></span></button></div>
+<div class="shade" id="shade" hidden></div>
+<section class="sheet" id="sheet" hidden role="dialog" aria-modal="true" aria-labelledby="sTitle"></section>
+
+<script>
+/* ================== SOZLAMALAR — shu yerni o'zgartiring ================== */
+const CONFIG = {
+  shopName: "Ustoz Do'koni",
+  tagline: "Ingliz tili o'qituvchilari uchun dars qurollari",
+  telegramAdmin: "fedka1993",          // @ belgisisiz: savollar shu akkauntga boradi
+  uzumShop: ""                              // Uzum'dagi do'koningiz havolasi (bo'lsa)
+};
+
+/* Har bir tovar: uzum = Uzum'dagi tovar sahifasi havolasi. Bo'sh qolsa — "Tez orada" chiqadi.
+   img = rasm havolasi (ixtiyoriy). type: "uzum" — Uzum orqali sotiladi, "order" — logo bilan buyurtma. */
+const PRODUCTS = [
+  {id:"amp",   cat:"audio", type:"uzum", pop:1,  name:"Ovoz kuchaytirgich (mikrofonli)", en:"Voice amplifier", price:180000, for:"Har bir o'qituvchi",
+   desc:"Kun bo'yi gapiradigan o'qituvchi uchun. Ovozni kuchaytiradi, tomoqni charchatmaydi.", points:["Bosh yoki belga taqiladigan mikrofon","Zaryadi 8–10 soatga yetadi","Musiqa va audio darslar uchun ham"], uzum:"", img:""},
+  {id:"pen",   cat:"audio", type:"uzum", pop:2,  name:"Gapiradigan ruchka (kitoblar bilan)", en:"Talking pen", price:280000, for:"Bolalar, 4–10 yosh", tag:"Yangi",
+   desc:"Ruchkani kitobdagi rasmga tegizsangiz, so'zni to'g'ri talaffuz bilan o'qib beradi.", points:["Kitoblar to'plami bilan","Talaffuzni mustaqil mashq qilish","Uyga vazifa uchun qulay"], uzum:"", img:""},
+  {id:"buzz",  cat:"games", type:"uzum", pop:3,  name:"Viktorina tugmalari (4 dona)", en:"Answer buzzers", price:150000, for:"Guruh darslari",
+   desc:"Kim birinchi bosdi — tovush va chiroq bilan ko'rsatadi. Vocabulary va quiz o'yinlari uchun.", points:["4 ta jamoa uchun","Batareyada ishlaydi","Darsni musobaqaga aylantiradi"], uzum:"", img:""},
+  {id:"phon",  cat:"cards", type:"uzum", pop:4,  name:"Fonetika kartochkalari (phonics)", en:"Phonics flashcards", price:60000, for:"Pre-A1 – A1",
+   desc:"Harf-tovush moslashuvini o'rgatish uchun rasmli kartochkalar.", points:["Har bir harf va tovush birikmasi","Ikki tomonlama: rasm va so'z","Sinf oldida ko'rsatish uchun katta o'lcham"], uzum:"", img:""},
+  {id:"stampE",cat:"stationery", type:"uzum", pop:5, name:"Inglizcha rag'bat shtamplari", en:"Reward stamps", price:60000, for:"Boshlang'ich sinflar",
+   desc:"\"Good job!\", \"Excellent!\", \"Well done!\" — daftar tekshirishda bolalarni rag'batlantiradi.", points:["Bir nechta dizayn to'plamda","O'zi bo'yaladigan shtamp","Rangli siyoh"], uzum:"", img:""},
+  {id:"cubes", cat:"games", type:"uzum", pop:6,  name:"Hikoya kubiklari (story cubes)", en:"Story cubes", price:60000, for:"A1 – B2 speaking",
+   desc:"Kubiklarni tashlang va rasmlar asosida hikoya tuzing. Speaking darsi uchun eng oson faoliyat.", points:["Har darajaga mos","Juft va guruh ishi uchun","Cho'ntakka sig'adi"], uzum:"", img:""},
+  {id:"pult",  cat:"audio", type:"uzum", pop:7,  name:"Prezentatsiya pulti (lazerli)", en:"Wireless presenter", price:90000, for:"Slayd bilan dars o'tadiganlar",
+   desc:"Slaydlarni sinf ichida yurib almashtiring, lazer bilan ko'rsating.", points:["USB orqali ulanadi, sozlash shart emas","10 metrgacha masofa","PowerPoint va Google Slides bilan ishlaydi"], uzum:"", img:""},
+  {id:"cvc",   cat:"cards", type:"uzum", pop:8,  name:"CVC so'z kubiklari", en:"CVC word blocks", price:70000, for:"Pre-A1",
+   desc:"Aylanadigan kubiklardan cat, dog, pen kabi uch harfli so'zlar yasaladi.", points:["O'qishni o'rgatish uchun","Yog'och kubiklar","Mustaqil mashq qilish uchun"], uzum:"", img:""},
+  {id:"board", cat:"boards", type:"uzum", pop:9,  name:"Mini doskalar (10 dona to'plam)", en:"Mini whiteboards", price:180000, for:"Butun sinf uchun",
+   desc:"Har bir o'quvchi javobini yozib ko'rsatadi — kim tushundi, darhol ko'rinadi.", points:["Ikki tomonlama","Marker va o'chirgich bilan","Spelling va dictation uchun"], uzum:"", img:""},
+  {id:"mag",   cat:"boards", type:"uzum", pop:10, name:"Magnitli harflar to'plami", en:"Magnetic letters", price:60000, for:"Pre-A1 – A1",
+   desc:"Doskaga yopishadigan katta va kichik harflar.", points:["Rangli, yirik harflar","So'z yasash o'yinlari","Magnitli doskaga mos"], uzum:"", img:""},
+  {id:"pocket",cat:"boards", type:"uzum", pop:11, name:"Cho'ntakli doska (pocket chart)", en:"Pocket chart", price:90000, for:"Boshlang'ich sinflar",
+   desc:"Kartochkalar, gaplar va jadvalni devorga ilib ko'rsatish uchun.", points:["Shaffof cho'ntaklar","Ilib qo'yish uchun halqalar","Kundalik jadval va so'zlar uchun"], uzum:"", img:""},
+  {id:"esl",   cat:"games", type:"uzum", pop:12, name:"ESL stol o'yinlari", en:"ESL board games", price:90000, for:"A1 – A2",
+   desc:"Grammatika va so'z boyligini o'yin orqali mustahkamlash.", points:["Guruh bilan o'ynash uchun","Takrorlash darslari uchun","Qoidalari oddiy"], uzum:"", img:""},
+  {id:"pup",   cat:"games", type:"uzum", pop:13, name:"Qo'g'irchoq-qo'lqoplar (5 ta)", en:"Hand puppets", price:100000, for:"Bolalar guruhlari",
+   desc:"Dialog va rolli o'yinlarni jonlantiradi. Uyatchan bolalar ham gapira boshlaydi.", points:["5 xil hayvon","Yumshoq mato","Speaking va storytelling uchun"], uzum:"", img:""},
+  {id:"stamp", cat:"stationery", type:"uzum", pop:14, name:"Rag'batlantirish shtamplari", en:"Teacher stamps", price:60000, for:"Barcha o'qituvchilar",
+   desc:"Baho va rag'bat uchun shtamplar to'plami.", points:["Bir nechta dizayn","O'zi bo'yaladi","Daftar tekshirishni tezlashtiradi"], uzum:"", img:""},
+  /* Logo bilan buyurtma: o'quv markazlari va maktablar uchun */
+  {id:"tee",   cat:"logo", type:"order", pop:15, name:"Logoli futbolka", en:"Custom T-shirt", price:85000, for:"O'quv markazlari", unit:"dona",
+   desc:"O'quv markazingiz yoki maktabingiz logosi bilan futbolka. Minimal buyurtma — kelishiladi.", points:["Logo yoki yozuv sizning dizayningiz","Har xil o'lcham va rang","Tadbir va jamoa uchun"], uzum:"", img:""},
+  {id:"note",  cat:"logo", type:"order", pop:16, name:"Logoli daftar (A5)", en:"Custom notebook", price:45000, for:"O'quv markazlari", unit:"dona",
+   desc:"Muqovasida logongiz bo'lgan daftar — o'quvchilarga sovg'a yoki reklama uchun.", points:["A5 format","Muqova dizayni sizdan","Katta partiyada arzonroq"], uzum:"", img:""},
+  {id:"bpen",  cat:"logo", type:"order", pop:17, name:"Logoli ruchka (10 dona)", en:"Custom pens", price:45000, for:"O'quv markazlari", unit:"10 dona",
+   desc:"Markazingiz nomi yozilgan ruchkalar — har bir o'quvchi qo'lida reklama.", points:["10 dona to'plam narxi","Rangini tanlash mumkin","Ochiq eshiklar kuni uchun"], uzum:"", img:""},
+  {id:"key",   cat:"logo", type:"order", pop:18, name:"Logoli brelok", en:"Custom keychain", price:15000, for:"O'quv markazlari", unit:"dona",
+   desc:"Bitiruvchilar va yaxshi o'quvchilar uchun esdalik sovg'a.", points:["Metall yoki akril","Logo va yozuv bilan","Katta partiyada arzonroq"], uzum:"", img:""}
+];
+
+const CATS = [
+  {id:"all", name:"Hammasi"},
+  {id:"cards", name:"Kartochkalar"},
+  {id:"games", name:"O'yinlar"},
+  {id:"boards", name:"Doskalar"},
+  {id:"audio", name:"Texnika"},
+  {id:"stationery", name:"Shtamplar"},
+  {id:"logo", name:"Logo bilan buyurtma"}
+];
+/* ======================================================================== */
+
+const ICONS = {
+  audio:'<svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 26h10l14-11v34L20 38H10z" fill="currentColor" fill-opacity=".12"/><path d="M42 24c3 3 3 13 0 16M48 18c7 7 7 21 0 28"/></svg>',
+  cards:'<svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linejoin="round"><rect x="8" y="16" width="30" height="38" rx="4" transform="rotate(-8 23 35)" fill="currentColor" fill-opacity=".12"/><rect x="26" y="10" width="30" height="38" rx="4"/><path d="M34 34l7-16 7 16M36.5 28h9" stroke-linecap="round"/></svg>',
+  games:'<svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linejoin="round"><rect x="10" y="22" width="26" height="26" rx="5" fill="currentColor" fill-opacity=".12"/><rect x="30" y="12" width="24" height="24" rx="5" transform="rotate(12 42 24)"/><circle cx="18" cy="30" r="2.5" fill="currentColor"/><circle cx="28" cy="40" r="2.5" fill="currentColor"/><circle cx="42" cy="24" r="2.5" fill="currentColor"/></svg>',
+  boards:'<svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="12" width="48" height="32" rx="3" fill="currentColor" fill-opacity=".12"/><path d="M16 24h18M16 32h26M24 44l-4 10M40 44l4 10"/></svg>',
+  stationery:'<svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linejoin="round"><path d="M26 8h12v14l8 6v8H18v-8l8-6z" fill="currentColor" fill-opacity=".12"/><rect x="12" y="36" width="40" height="8" rx="2"/><path d="M16 54h32" stroke-linecap="round"/></svg>',
+  logo:'<svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linejoin="round"><path d="M22 8 8 18l6 10 6-3v31h24V25l6 3 6-10L42 8c-2 5-6 7-10 7s-8-2-10-7z" fill="currentColor" fill-opacity=".12"/><circle cx="32" cy="34" r="6"/></svg>'
+};
+
+const fmt = n => n.toLocaleString("ru-RU").replace(/ /g," ");
+const tg = window.Telegram && window.Telegram.WebApp;
+if (tg) { try { tg.ready(); tg.expand(); } catch(e){} }
+
+document.getElementById("shopName").textContent = CONFIG.shopName;
+document.getElementById("shopTag").textContent = CONFIG.tagline;
+document.getElementById("foot").textContent = "Savollar bo'yicha: @" + CONFIG.telegramAdmin + " · Narxlar Uzum Market'dagi narxlar";
+
+let state = {cat:"all", q:"", sort:"pop"};
+try { const s = JSON.parse(localStorage.getItem("ustoz-ui")||"{}"); if (s.cat) state.cat = s.cat; if (s.sort) state.sort = s.sort; } catch(e){}
+document.getElementById("sort").value = state.sort;
+
+const chips = document.getElementById("chips");
+CATS.forEach(c => {
+  const b = document.createElement("button");
+  b.className = "chip"; b.type = "button"; b.textContent = c.name; b.dataset.id = c.id; b.id = "chip-" + c.id;
+  b.addEventListener("click", () => { state.cat = c.id; save(); render(); });
+  chips.appendChild(b);
+});
+
+function save(){ try { localStorage.setItem("ustoz-ui", JSON.stringify({cat:state.cat, sort:state.sort})); } catch(e){} }
+
+/* Og'irlik (kg, qadoq bilan) — BTS narxini hisoblash uchun */
+const WEIGHT = {amp:.3, pen:.4, buzz:.5, phon:.3, stampE:.15, cubes:.2, pult:.1, cvc:.4, board:1.2, mag:.4, pocket:.5, esl:.5, pup:.3, stamp:.15};
+/* BTS rasmiy tarifi (01.01.2025), Toshkentdan, ofisdan ofisgacha: [1 kg, 5 kg, 10 kg] */
+const BTS = {0:[18000,30000,40000],1:[23000,51000,81000],2:[24000,54000,86500],3:[25000,57000,92000],4:[27000,61000,98500],5:[28000,64000,104000]};
+const REGIONS = [
+  ["Toshkent shahri",0],["Toshkent viloyati",1],["Andijon",1],["Farg'ona",1],["Namangan",1],["Samarqand",1],["Jizzax",1],["Sirdaryo",1],
+  ["Buxoro",2],["Navoiy",2],["Qashqadaryo",2],["Surxondaryo",3],["Xorazm",4],["Qoraqalpog'iston",5]
+];
+function btsPrice(kg, zone){
+  const t = BTS[zone]; const k = Math.max(1, Math.ceil(kg));
+  if (k <= 5) return Math.round(t[0] + (k-1)*(t[1]-t[0])/4);
+  if (k <= 10) return Math.round(t[1] + (k-5)*(t[2]-t[1])/5);
+  return Math.round(t[2] + (k-10)*(t[2]-t[1])/5);
+}
+
+let cart = {};
+try { cart = JSON.parse(localStorage.getItem("ustoz-cart") || "{}") || {}; } catch(e){ cart = {}; }
+function saveCart(){ try { localStorage.setItem("ustoz-cart", JSON.stringify(cart)); } catch(e){} }
+const byId = id => PRODUCTS.find(p => p.id === id);
+function cartItems(){ return Object.entries(cart).filter(([id,q]) => q > 0 && byId(id)).map(([id,q]) => ({p:byId(id), q})); }
+function cartCount(){ return cartItems().reduce((s,x) => s + x.q, 0); }
+function cartSum(){ return cartItems().reduce((s,x) => s + x.q * x.p.price, 0); }
+function cartKg(){ return cartItems().reduce((s,x) => s + x.q * (WEIGHT[x.p.id] || .3), 0); }
+function setQty(id, q){ q = Math.max(0, Math.min(99, q)); if (q) cart[id] = q; else delete cart[id]; saveCart(); updateCartUI(); }
+function updateCartUI(){
+  const n = cartCount();
+  const b = document.getElementById("badge"); b.hidden = !n; b.textContent = n;
+  const bar = document.getElementById("cartbar"); bar.hidden = !n || !sheet.hidden;
+  document.body.classList.toggle("has-cart", !!n);
+  document.getElementById("cbLeft").textContent = "Savat · " + n + " ta";
+  document.getElementById("cbRight").textContent = fmt(cartSum()) + " so'm  →";
+  render();
+}
+
+function tileHTML(p, showIn){
+  const art = p.img ? `<img src="${p.img}" alt="${p.name}">` : ICONS[p.cat] || ICONS.cards;
+  const inC = showIn && cart[p.id] ? `<span class="incart">Savatda: ${cart[p.id]}</span>` : "";
+  return `<div class="tile">${art}<span class="en">${p.en}</span>${p.tag ? `<span class="tag">${p.tag}</span>` : ""}${inC}</div>`;
+}
+
+function render(){
+  chips.querySelectorAll(".chip").forEach(b => b.setAttribute("aria-pressed", b.dataset.id === state.cat ? "true" : "false"));
+  const q = state.q.trim().toLowerCase();
+  let list = PRODUCTS.filter(p => (state.cat === "all" || p.cat === state.cat) &&
+    (!q || (p.name + " " + p.en + " " + p.for + " " + p.desc).toLowerCase().includes(q)));
+  if (state.sort === "asc") list.sort((a,b) => a.price - b.price);
+  else if (state.sort === "desc") list.sort((a,b) => b.price - a.price);
+  else list.sort((a,b) => a.pop - b.pop);
+  document.getElementById("count").textContent = list.length + " ta tovar";
+  const grid = document.getElementById("grid");
+  if (!list.length) { grid.innerHTML = `<div class="empty">Hech narsa topilmadi. Boshqa so'z bilan qidiring.</div>`; return; }
+  grid.innerHTML = list.map(p => `
+    <button class="card" type="button" data-id="${p.id}" id="card-${p.id}">
+      ${tileHTML(p, true)}
+      <div class="body">
+        <div class="name">${p.name}</div>
+        <div class="for">${p.for}</div>
+        <div class="price">${p.type === "order" ? `<small>dan </small>` : ""}${fmt(p.price)} <small>so'm${p.unit ? " / " + p.unit : ""}</small></div>
+      </div>
+    </button>`).join("");
+  grid.querySelectorAll(".card").forEach(c => c.addEventListener("click", () => open(c.dataset.id)));
+}
+
+const sheet = document.getElementById("sheet"), shade = document.getElementById("shade");
+let lastFocus = null;
+function tgLink(text){ return "https://t.me/" + CONFIG.telegramAdmin + (text ? "?text=" + encodeURIComponent(text) : ""); }
+function showSheet(html, focusId){
+  if (sheet.hidden) lastFocus = document.activeElement;
+  sheet.innerHTML = `<div class="grab" aria-hidden="true"></div>` + html;
+  sheet.hidden = false; shade.hidden = false; document.getElementById("cartbar").hidden = true;
+  if (tg && tg.openLink) {
+    sheet.querySelectorAll('a[href^="http"]').forEach(a => a.addEventListener("click", e => {
+      e.preventDefault();
+      if (a.href.startsWith("https://t.me/") && tg.openTelegramLink) tg.openTelegramLink(a.href); else tg.openLink(a.href);
+    }));
+  }
+  sheet.querySelectorAll("[data-close]").forEach(b => b.addEventListener("click", close));
+  const f = focusId && document.getElementById(focusId); (f || sheet).focus && (f || sheet).focus();
+}
+
+function open(id){
+  const p = byId(id); if (!p) return;
+  const ask = tgLink(p.type === "order"
+    ? `Assalomu alaykum! "${p.name}" buyurtma qilmoqchiman. Soni: __ ta. Logomizni yuboraman.`
+    : `Assalomu alaykum! "${p.name}" haqida savolim bor.`);
+  let actions;
+  if (p.type === "order") {
+    actions = `<a class="btn tg" href="${ask}" target="_blank" rel="noopener" id="ask">Buyurtma berish (Telegram)</a>`;
+  } else {
+    const q = cart[p.id] || 0;
+    actions = `
+      <div class="addrow">
+        ${q ? `<div class="qty"><button class="qbtn" type="button" id="qm" aria-label="Kamaytirish">−</button><output id="qv">${q}</output><button class="qbtn" type="button" id="qp" aria-label="Ko'paytirish">+</button></div>
+               <button class="btn tg" type="button" id="goCart">Savatga o'tish</button>`
+            : `<button class="btn tg" type="button" id="add">Savatga qo'shish</button>`}
+      </div>
+      ${p.uzum ? `<a class="btn uzum" href="${p.uzum}" target="_blank" rel="noopener" id="buy">Uzum'da sotib olish · bepul yetkazish</a>`
+               : `<span class="btn ghost" aria-disabled="true">Uzum'da: tez orada</span>`}
+      <a class="btn ghost" href="${ask}" target="_blank" rel="noopener" id="ask">Savol berish (Telegram)</a>`;
+  }
+  showSheet(`
+    ${tileHTML(p)}
+    <h2 id="sTitle">${p.name}</h2>
+    <div class="bigprice">${p.type === "order" ? "dan " : ""}${fmt(p.price)} so'm${p.unit ? " / " + p.unit : ""}</div>
+    <div class="meta"><span>${p.for}</span><span>${p.en}</span>${p.type === "order" ? "<span>Logo bilan buyurtma</span>" : "<span>BTS yoki Uzum orqali</span>"}</div>
+    <p>${p.desc}</p>
+    <ul>${p.points.map(x => `<li>${x}</li>`).join("")}</ul>
+    <div class="actions">${actions}<button class="btn ghost" type="button" data-close id="close">Yopish</button></div>`, "close");
+  const add = document.getElementById("add"); if (add) add.addEventListener("click", () => { setQty(p.id, 1); open(p.id); });
+  const qm = document.getElementById("qm"); if (qm) qm.addEventListener("click", () => { setQty(p.id, (cart[p.id]||0) - 1); open(p.id); });
+  const qp = document.getElementById("qp"); if (qp) qp.addEventListener("click", () => { setQty(p.id, (cart[p.id]||0) + 1); open(p.id); });
+  const gc = document.getElementById("goCart"); if (gc) gc.addEventListener("click", openCart);
+}
+
+let form = {name:"", phone:"", region:"", addr:"", pay:"Click / Payme orqali oldindan", note:""};
+try { Object.assign(form, JSON.parse(localStorage.getItem("ustoz-form") || "{}")); } catch(e){}
+function saveForm(){ try { localStorage.setItem("ustoz-form", JSON.stringify(form)); } catch(e){} }
+
+function openCart(){
+  const items = cartItems();
+  if (!items.length) {
+    showSheet(`<h3 id="sTitle">Savat bo'sh</h3><p>Tovarni oching va "Savatga qo'shish" tugmasini bosing.</p><div class="actions"><button class="btn tg" type="button" data-close id="close">Tovarlarni ko'rish</button></div>`, "close");
+    return;
+  }
+  const reg = REGIONS.find(r => r[0] === form.region);
+  const kg = cartKg();
+  const ship = reg ? btsPrice(kg, reg[1]) : null;
+  const sum = cartSum();
+  showSheet(`
+    <h3 id="sTitle">Savat</h3>
+    <div class="lines">${items.map(({p,q}) => `
+      <div class="line">
+        <div class="mini" aria-hidden="true">${ICONS[p.cat]}</div>
+        <div style="min-width:0"><div class="ln">${p.name}</div><div class="lp">${fmt(p.price)} × ${q} = ${fmt(p.price*q)} so'm</div></div>
+        <div class="qty"><button class="qbtn" type="button" data-m="${p.id}" aria-label="Kamaytirish">−</button><output>${q}</output><button class="qbtn" type="button" data-p="${p.id}" aria-label="Ko'paytirish">+</button></div>
+      </div>`).join("")}
+    </div>
+    <form class="co" id="co" novalidate>
+      <div class="field"><label for="fRegion">Viloyat</label>
+        <select id="fRegion" required><option value="">Tanlang…</option>${REGIONS.map(r => `<option${r[0]===form.region?" selected":""}>${r[0]}</option>`).join("")}</select></div>
+      <div class="sum">
+        <div><span>Tovarlar</span><span>${fmt(sum)} so'm</span></div>
+        <div><span>BTS yetkazish <small>(${kg.toFixed(1)} kg, 1 posilka)</small></span><span>${ship === null ? "viloyatni tanlang" : fmt(ship) + " so'm"}</span></div>
+        <div class="total"><span>Jami</span><span>${fmt(sum + (ship||0))} so'm</span></div>
+      </div>
+      <div class="field"><label for="fName">Ismingiz</label><input id="fName" autocomplete="name" value="${form.name}" placeholder="Masalan: Dilnoza" required></div>
+      <div class="field"><label for="fPhone">Telefon</label><input id="fPhone" type="tel" inputmode="tel" autocomplete="tel" value="${form.phone}" placeholder="+998 90 123 45 67" required></div>
+      <div class="field"><label for="fAddr">Tuman va BTS filiali (yoki manzil)</label><input id="fAddr" value="${form.addr}" placeholder="Masalan: Chilonzor, BTS filiali" required></div>
+      <div class="field"><span style="font-size:13px;font-weight:600">To'lov</span>
+        <div class="radios">
+          ${["Click / Payme orqali oldindan","Naqd — posilkani olganda (nalojka)"].map((v,i) => `<label for="pay${i}"><input type="radio" name="pay" id="pay${i}" value="${v}"${form.pay===v?" checked":""}> ${v}</label>`).join("")}
+        </div></div>
+      <div class="field"><label for="fNote">Izoh (ixtiyoriy)</label><textarea id="fNote" rows="2" placeholder="Masalan: sovg'a uchun o'rab bering">${form.note}</textarea></div>
+      <div class="err" id="err" hidden></div>
+      <button class="btn tg" type="submit" id="submit">Buyurtmani rasmiylashtirish</button>
+      <button class="btn ghost" type="button" data-close id="close">Xaridni davom ettirish</button>
+    </form>
+    <p class="hint">BTS narxi rasmiy tarif bo'yicha taxminiy. Uzum'da xarid qilsangiz, punktgacha yetkazish bepul.</p>`, "fRegion");
+  sheet.querySelectorAll("[data-m]").forEach(b => b.addEventListener("click", () => { setQty(b.dataset.m, cart[b.dataset.m]-1); openCart(); }));
+  sheet.querySelectorAll("[data-p]").forEach(b => b.addEventListener("click", () => { setQty(b.dataset.p, cart[b.dataset.p]+1); openCart(); }));
+  const rd = () => { form.name = fName.value; form.phone = fPhone.value; form.addr = fAddr.value; form.note = fNote.value;
+    const c = sheet.querySelector('input[name="pay"]:checked'); if (c) form.pay = c.value; saveForm(); };
+  const fName = document.getElementById("fName"), fPhone = document.getElementById("fPhone"), fAddr = document.getElementById("fAddr"), fNote = document.getElementById("fNote");
+  [fName,fPhone,fAddr,fNote].forEach(el => el.addEventListener("input", rd));
+  sheet.querySelectorAll('input[name="pay"]').forEach(el => el.addEventListener("change", rd));
+  document.getElementById("fRegion").addEventListener("change", e => { rd(); form.region = e.target.value; saveForm(); openCart(); document.getElementById("fRegion").focus(); });
+  document.getElementById("co").addEventListener("submit", e => {
+    e.preventDefault(); rd();
+    const miss = [];
+    if (!form.region) miss.push("viloyat"); if (!form.name.trim()) miss.push("ism");
+    if (form.phone.replace(/\D/g,"").length < 9) miss.push("telefon raqami"); if (!form.addr.trim()) miss.push("tuman yoki BTS filiali");
+    const err = document.getElementById("err");
+    if (miss.length) { err.textContent = "To'ldiring: " + miss.join(", ") + "."; err.hidden = false; return; }
+    confirmOrder(ship);
+  });
+}
+
+function confirmOrder(ship){
+  const items = cartItems(), sum = cartSum();
+  const no = "U" + Date.now().toString().slice(-6);
+  const text = [
+    `🛍 Yangi buyurtma ${no}`,
+    ...items.map(({p,q}, i) => `${i+1}. ${p.name} — ${q} × ${fmt(p.price)} = ${fmt(p.price*q)} so'm`),
+    `Tovarlar: ${fmt(sum)} so'm`,
+    `BTS yetkazish (${form.region}): ~${fmt(ship)} so'm`,
+    `Jami: ${fmt(sum + ship)} so'm`,
+    ``,
+    `Ism: ${form.name}`, `Telefon: ${form.phone}`, `Manzil: ${form.region}, ${form.addr}`, `To'lov: ${form.pay}`,
+    form.note ? `Izoh: ${form.note}` : ""
+  ].filter(Boolean).join("\n");
+  showSheet(`
+    <div class="done" id="sTitle">Buyurtma tayyor</div>
+    <p>Oxirgi qadam: pastdagi tugmani bosib, buyurtmani do'kon egasiga Telegram'da yuboring. U siz bilan bog'lanib, to'lov va yetkazishni tasdiqlaydi.</p>
+    <div class="msg" id="msg">${text.replace(/</g,"&lt;")}</div>
+    <div class="actions">
+      <a class="btn tg" href="${tgLink(text)}" target="_blank" rel="noopener" id="send">Telegram'da yuborish</a>
+      <button class="btn ghost" type="button" id="copy">Matnni nusxalash</button>
+      <div class="hint" id="copyHint">Agar chat matnsiz ochilsa, matnni nusxalab @${CONFIG.telegramAdmin} ga yuboring.</div>
+      <button class="btn ghost" type="button" id="clear">Yuborildi — savatni tozalash</button>
+    </div>`, "send");
+  document.getElementById("copy").addEventListener("click", () => {
+    const h = document.getElementById("copyHint");
+    navigator.clipboard.writeText(text).then(() => { h.textContent = "Nusxalandi. Endi @" + CONFIG.telegramAdmin + " ga yuboring."; })
+      .catch(() => { const r = document.createRange(); r.selectNodeContents(document.getElementById("msg")); const s = getSelection(); s.removeAllRanges(); s.addRange(r); h.textContent = "Matn belgilandi — nusxalab oling."; });
+  });
+  document.getElementById("clear").addEventListener("click", () => { cart = {}; saveCart(); close(); updateCartUI(); });
+}
+
+function close(){ sheet.hidden = true; shade.hidden = true; updateCartUI(); if (lastFocus && document.contains(lastFocus)) lastFocus.focus(); }
+shade.addEventListener("click", close);
+document.addEventListener("keydown", e => { if (e.key === "Escape" && !sheet.hidden) close(); });
+document.getElementById("q").addEventListener("input", e => { state.q = e.target.value; render(); });
+document.getElementById("sort").addEventListener("change", e => { state.sort = e.target.value; save(); render(); });
+document.getElementById("cartBtn").addEventListener("click", openCart);
+document.getElementById("cartbarBtn").addEventListener("click", openCart);
+updateCartUI();
+</script>
+
+</body>
+</html>
