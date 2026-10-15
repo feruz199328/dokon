@@ -157,7 +157,7 @@ form.co{display:grid;gap:10px}
     </div>
     <label class="search" for="q">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
-      <input id="q" type="search" placeholder="Qidirish: phonics, doska, shtamp…" autocomplete="off">
+      <input id="q" type="search" placeholder="Qidirish: kartochka, doska, shtamp…" autocomplete="off">
     </label>
     <div class="chips" id="chips" role="group" aria-label="Toifalar"></div>
   </header>
@@ -196,29 +196,29 @@ const PRODUCTS = [
   {id:"amp",   cat:"audio", type:"uzum", pop:1,  name:"Ovoz kuchaytirgich (mikrofonli)", en:"Voice amplifier", price:180000, for:"Har bir o'qituvchi",
    desc:"Kun bo'yi gapiradigan o'qituvchi uchun. Ovozni kuchaytiradi, tomoqni charchatmaydi.", points:["Bosh yoki belga taqiladigan mikrofon","Zaryadi 8–10 soatga yetadi","Musiqa va audio darslar uchun ham"], uzum:"", img:""},
   {id:"pen",   cat:"audio", type:"uzum", pop:2,  name:"Gapiradigan ruchka (kitoblar bilan)", en:"Talking pen", price:280000, for:"Bolalar, 4–10 yosh", tag:"Yangi",
-   desc:"Ruchkani kitobdagi rasmga tegizsangiz, so'zni to'g'ri talaffuz bilan o'qib beradi.", points:["Kitoblar to'plami bilan","Talaffuzni mustaqil mashq qilish","Uyga vazifa uchun qulay"], uzum:"", img:""},
+   desc:"Ruchkani kitobdagi rasmga tegizsangiz, matnni ovoz chiqarib o'qib beradi. Bolalar mustaqil o'rganadi.", points:["Kitoblar to'plami bilan","Mustaqil o'qish va mashq","Uyga vazifa uchun qulay"], uzum:"", img:""},
   {id:"buzz",  cat:"games", type:"uzum", pop:3,  name:"Viktorina tugmalari (4 dona)", en:"Answer buzzers", price:150000, for:"Guruh darslari",
-   desc:"Kim birinchi bosdi — tovush va chiroq bilan ko'rsatadi. Vocabulary va quiz o'yinlari uchun.", points:["4 ta jamoa uchun","Batareyada ishlaydi","Darsni musobaqaga aylantiradi"], uzum:"", img:""},
-  {id:"phon",  cat:"cards", type:"uzum", pop:4,  name:"Fonetika kartochkalari (phonics)", en:"Phonics flashcards", price:60000, for:"Pre-A1 – A1",
-   desc:"Harf-tovush moslashuvini o'rgatish uchun rasmli kartochkalar.", points:["Har bir harf va tovush birikmasi","Ikki tomonlama: rasm va so'z","Sinf oldida ko'rsatish uchun katta o'lcham"], uzum:"", img:""},
-  {id:"stampE",cat:"stationery", type:"uzum", pop:5, name:"Inglizcha rag'bat shtamplari", en:"Reward stamps", price:60000, for:"Boshlang'ich sinflar",
-   desc:"\"Good job!\", \"Excellent!\", \"Well done!\" — daftar tekshirishda bolalarni rag'batlantiradi.", points:["Bir nechta dizayn to'plamda","O'zi bo'yaladigan shtamp","Rangli siyoh"], uzum:"", img:""},
-  {id:"cubes", cat:"games", type:"uzum", pop:6,  name:"Hikoya kubiklari (story cubes)", en:"Story cubes", price:60000, for:"A1 – B2 speaking",
-   desc:"Kubiklarni tashlang va rasmlar asosida hikoya tuzing. Speaking darsi uchun eng oson faoliyat.", points:["Har darajaga mos","Juft va guruh ishi uchun","Cho'ntakka sig'adi"], uzum:"", img:""},
+   desc:"Kim birinchi bosdi — tovush va chiroq bilan ko'rsatadi. Viktorina va bilimlar bellashuvi uchun.", points:["4 ta jamoa uchun","Batareyada ishlaydi","Darsni musobaqaga aylantiradi"], uzum:"", img:""},
+  {id:"phon",  cat:"cards", type:"uzum", pop:4,  name:"O'quv kartochkalari (harf va tovush)", en:"Flashcards", price:60000, for:"Boshlang'ich sinflar",
+   desc:"Harflar, so'zlar va tushunchalarni o'rgatish uchun rasmli kartochkalar.", points:["Harflar, raqamlar va rasmlar","Ikki tomonlama: rasm va so'z","Sinf oldida ko'rsatish uchun katta o'lcham"], uzum:"", img:""},
+  {id:"stampE",cat:"stationery", type:"uzum", pop:5, name:"Rag'bat shtamplari (\"Barakalla!\", \"A'lo!\")", en:"Reward stamps", price:60000, for:"Boshlang'ich sinflar",
+   desc:"\"Barakalla!\", \"A'lo!\", \"Zo'r!\" — daftar tekshirishda bolalarni rag'batlantiradi.", points:["Bir nechta dizayn to'plamda","O'zi bo'yaladigan shtamp","Rangli siyoh"], uzum:"", img:""},
+  {id:"cubes", cat:"games", type:"uzum", pop:6,  name:"Hikoya kubiklari (story cubes)", en:"Story cubes", price:60000, for:"Barcha sinflar",
+   desc:"Kubiklarni tashlang va rasmlar asosida hikoya tuzing. Nutq o'stirish va ijodiy fikrlash uchun eng oson mashg'ulot.", points:["Har yoshga mos","Juft va guruh ishi uchun","Cho'ntakka sig'adi"], uzum:"", img:""},
   {id:"pult",  cat:"audio", type:"uzum", pop:7,  name:"Prezentatsiya pulti (lazerli)", en:"Wireless presenter", price:90000, for:"Slayd bilan dars o'tadiganlar",
    desc:"Slaydlarni sinf ichida yurib almashtiring, lazer bilan ko'rsating.", points:["USB orqali ulanadi, sozlash shart emas","10 metrgacha masofa","PowerPoint va Google Slides bilan ishlaydi"], uzum:"", img:""},
-  {id:"cvc",   cat:"cards", type:"uzum", pop:8,  name:"CVC so'z kubiklari", en:"CVC word blocks", price:70000, for:"Pre-A1",
-   desc:"Aylanadigan kubiklardan cat, dog, pen kabi uch harfli so'zlar yasaladi.", points:["O'qishni o'rgatish uchun","Yog'och kubiklar","Mustaqil mashq qilish uchun"], uzum:"", img:""},
+  {id:"cvc",   cat:"cards", type:"uzum", pop:8,  name:"So'z yasash kubiklari", en:"Word blocks", price:70000, for:"1–2-sinflar",
+   desc:"Aylanadigan kubiklardan so'z yasab, o'qishni o'yin orqali o'rganadi.", points:["O'qishni o'rgatish uchun","Yog'och kubiklar","Mustaqil mashq qilish uchun"], uzum:"", img:""},
   {id:"board", cat:"boards", type:"uzum", pop:9,  name:"Mini doskalar (10 dona to'plam)", en:"Mini whiteboards", price:180000, for:"Butun sinf uchun",
-   desc:"Har bir o'quvchi javobini yozib ko'rsatadi — kim tushundi, darhol ko'rinadi.", points:["Ikki tomonlama","Marker va o'chirgich bilan","Spelling va dictation uchun"], uzum:"", img:""},
-  {id:"mag",   cat:"boards", type:"uzum", pop:10, name:"Magnitli harflar to'plami", en:"Magnetic letters", price:60000, for:"Pre-A1 – A1",
+   desc:"Har bir o'quvchi javobini yozib ko'rsatadi — kim tushundi, darhol ko'rinadi.", points:["Ikki tomonlama","Marker va o'chirgich bilan","Imlo va diktant uchun"], uzum:"", img:""},
+  {id:"mag",   cat:"boards", type:"uzum", pop:10, name:"Magnitli harflar to'plami", en:"Magnetic letters", price:60000, for:"Boshlang'ich sinflar",
    desc:"Doskaga yopishadigan katta va kichik harflar.", points:["Rangli, yirik harflar","So'z yasash o'yinlari","Magnitli doskaga mos"], uzum:"", img:""},
   {id:"pocket",cat:"boards", type:"uzum", pop:11, name:"Cho'ntakli doska (pocket chart)", en:"Pocket chart", price:90000, for:"Boshlang'ich sinflar",
    desc:"Kartochkalar, gaplar va jadvalni devorga ilib ko'rsatish uchun.", points:["Shaffof cho'ntaklar","Ilib qo'yish uchun halqalar","Kundalik jadval va so'zlar uchun"], uzum:"", img:""},
-  {id:"esl",   cat:"games", type:"uzum", pop:12, name:"ESL stol o'yinlari", en:"ESL board games", price:90000, for:"A1 – A2",
-   desc:"Grammatika va so'z boyligini o'yin orqali mustahkamlash.", points:["Guruh bilan o'ynash uchun","Takrorlash darslari uchun","Qoidalari oddiy"], uzum:"", img:""},
+  {id:"esl",   cat:"games", type:"uzum", pop:12, name:"O'quv stol o'yinlari", en:"Board games", price:90000, for:"Barcha sinflar",
+   desc:"Bilimni o'yin orqali mustahkamlash: matematika, ona tili, chet tili.", points:["Guruh bilan o'ynash uchun","Takrorlash darslari uchun","Qoidalari oddiy"], uzum:"", img:""},
   {id:"pup",   cat:"games", type:"uzum", pop:13, name:"Qo'g'irchoq-qo'lqoplar (5 ta)", en:"Hand puppets", price:100000, for:"Bolalar guruhlari",
-   desc:"Dialog va rolli o'yinlarni jonlantiradi. Uyatchan bolalar ham gapira boshlaydi.", points:["5 xil hayvon","Yumshoq mato","Speaking va storytelling uchun"], uzum:"", img:""},
+   desc:"Dialog va rolli o'yinlarni jonlantiradi. Uyatchan bolalar ham gapira boshlaydi.", points:["5 xil hayvon","Yumshoq mato","Nutq va ertak darslari uchun"], uzum:"", img:""},
   {id:"stamp", cat:"stationery", type:"uzum", pop:14, name:"Rag'batlantirish shtamplari", en:"Teacher stamps", price:60000, for:"Barcha o'qituvchilar",
    desc:"Baho va rag'bat uchun shtamplar to'plami.", points:["Bir nechta dizayn","O'zi bo'yaladi","Daftar tekshirishni tezlashtiradi"], uzum:"", img:""},
   /* Logo bilan buyurtma: o'quv markazlari va maktablar uchun */
