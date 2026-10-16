@@ -1,0 +1,436 @@
+<!doctype html>
+<html lang="uz">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>Do'kon admini</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Onest:wght@400;500;600&display=swap">
+<style>
+/* Layout: bitta ustunli boshqaruv paneli — ulanish kartasi, 3 ta bo'lim (Tovarlar / Toifalar / Do'kon matnlari), pastda yopishqoq "Saqlash" paneli */
+:root{
+  --paper:#F6F7F9; --card:#FFFFFF; --ink:#16203A; --muted:#5D6680; --line:#DCE0EA;
+  --blue:#1D4ED8; --blue-ink:#FFFFFF; --red:#D7263D; --green:#0F8A5F; --tile:#E8EDFB; --warn:#B45309; --warnbg:#FEF3C7;
+  --display:"Bricolage Grotesque","Arial Narrow",system-ui,sans-serif;
+  --body:"Onest",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme: dark){:root{
+  --paper:#0F1424;--card:#171E33;--ink:#EEF1F8;--muted:#9AA3BC;--line:#28314B;
+  --blue:#6E95FF;--blue-ink:#0B1020;--red:#FF6B7D;--green:#3CCB92;--tile:#1F2944;--warn:#FBBF24;--warnbg:#3A2E10;color-scheme:dark}}
+*{box-sizing:border-box}
+html{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.45 var(--body)}
+[hidden]{display:none!important}
+.wrap{max-width:820px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:18px 120px;display:grid;gap:16px}
+h1{font:800 24px/1.1 var(--display);margin:0}
+h2{font:700 18px/1.2 var(--display);margin:0}
+.sub{color:var(--muted);font-size:13.5px;margin:4px 0 0}
+.box{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;display:grid;gap:12px}
+.row{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
+.field{display:grid;gap:4px;min-width:0}
+.field label,.lbl{font-size:12.5px;font-weight:600;color:var(--muted)}
+input[type=text],input[type=url],input[type=number],input[type=password],select,textarea{
+  font:inherit;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px 11px;width:100%;min-width:0}
+textarea{resize:vertical;min-height:70px}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--blue);outline-offset:0;border-color:var(--blue)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;font:600 14px var(--body);padding:10px 14px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer;text-decoration:none}
+.btn.primary{background:var(--blue);color:var(--blue-ink);border-color:var(--blue)}
+.btn.danger{color:var(--red);border-color:var(--red);background:transparent}
+.btn.sm{padding:6px 10px;font-size:13px}
+.btn:focus-visible,summary:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+.btn[disabled]{opacity:.5;cursor:not-allowed}
+.status{font-size:13.5px;padding:8px 10px;border-radius:8px}
+.status.ok{background:color-mix(in srgb,var(--green) 14%,transparent);color:var(--green)}
+.status.err{background:color-mix(in srgb,var(--red) 14%,transparent);color:var(--red)}
+.status.info{background:var(--tile);color:var(--ink)}
+.tabs{display:flex;gap:6px;overflow-x:auto}
+.tab{flex:none;border:1px solid var(--line);background:var(--card);color:var(--ink);font:600 14px var(--body);padding:9px 14px;border-radius:999px;cursor:pointer}
+.tab[aria-selected="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.plist{display:grid;gap:10px}
+details.prod{background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+details.prod[open]{border-color:var(--blue)}
+details.prod summary{list-style:none;display:grid;grid-template-columns:52px minmax(0,1fr) auto;gap:10px;align-items:center;padding:10px 12px;cursor:pointer}
+details.prod summary::-webkit-details-marker{display:none}
+.thumb{width:52px;height:52px;border-radius:10px;background:var(--tile);overflow:hidden;display:grid;place-items:center;color:var(--muted);font:700 11px var(--body)}
+.thumb img{width:100%;height:100%;object-fit:cover}
+.pn{font-weight:600;line-height:1.25;overflow:hidden;text-overflow:ellipsis}
+.pm{font-size:12.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+.pill{font:600 11px var(--body);padding:3px 7px;border-radius:6px;white-space:nowrap}
+.pill.on{background:color-mix(in srgb,var(--green) 16%,transparent);color:var(--green)}
+.pill.off{background:var(--tile);color:var(--muted)}
+.pill.hid{background:var(--warnbg);color:var(--warn)}
+.pbody{padding:4px 12px 14px;display:grid;gap:12px;border-top:1px solid var(--line)}
+.tools{display:flex;flex-wrap:wrap;gap:8px}
+.confirm{display:flex;flex-wrap:wrap;gap:8px;align-items:center;background:color-mix(in srgb,var(--red) 10%,transparent);border-radius:10px;padding:8px 10px;font-size:13.5px}
+.imgrow{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.imgrow .thumb{width:72px;height:72px}
+.check{display:flex;gap:8px;align-items:center;font-size:14px}
+.catrow{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:end}
+.savebar{position:fixed;left:0;right:0;bottom:0;z-index:5;background:var(--card);border-top:1px solid var(--line);
+  padding:10px max(16px,env(safe-area-inset-right,0px)) calc(10px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+.savebar .in{max-width:820px;margin:0 auto;display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.dirty{font-size:13px;color:var(--warn);font-weight:600}
+.clean{font-size:13px;color:var(--muted)}
+.help{font-size:13px;color:var(--muted)}
+.help ol{margin:6px 0 0;padding-left:18px;display:grid;gap:3px}
+code{background:var(--tile);padding:1px 5px;border-radius:5px;font-size:12.5px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Do'kon admini</h1>
+    <p class="sub">Tovarlar, narxlar va barcha yozuvlarni shu yerda o'zgartiring. O'zgarishlarni avval «Oldindan ko'rish» bilan faqat o'zingiz ko'rasiz. Mijozlar ularni faqat «Saqlash»dan keyin, 1–2 daqiqada ko'radi.</p>
+  </header>
+
+  <section class="box" id="connBox" aria-labelledby="connTitle">
+    <h2 id="connTitle">GitHub'ga ulanish</h2>
+    <div class="row">
+      <div class="field"><label for="ghOwner">GitHub nomingiz</label><input id="ghOwner" type="text" value="feruz199328" autocomplete="username"></div>
+      <div class="field"><label for="ghRepo">Repository</label><input id="ghRepo" type="text" value="dokon"></div>
+    </div>
+    <div class="field"><label for="ghToken">Kalit (token)</label><input id="ghToken" type="password" placeholder="github_pat_..." autocomplete="off"></div>
+    <label class="check" for="remember"><input id="remember" type="checkbox" checked> Shu qurilmada eslab qolish</label>
+    <div class="tools">
+      <button class="btn primary" id="connectBtn" type="button">Ulanish</button>
+      <a class="btn" id="siteLink" href="./" target="_blank" rel="noopener">Saytni ochish ↗</a>
+      <button class="btn" id="logoutBtn" type="button" hidden>Chiqish</button>
+    </div>
+    <div id="connStatus" class="status info">Kalitni kiriting va «Ulanish»ni bosing.</div>
+    <details class="help">
+      <summary>Kalitni qanday olaman?</summary>
+      <ol>
+        <li>github.com → o'ng yuqoridagi rasmingiz → <b>Settings</b></li>
+        <li>Pastda <b>Developer settings</b> → <b>Personal access tokens</b> → <b>Fine-grained tokens</b> → <b>Generate new token</b></li>
+        <li>Nomi: <code>dokon-admin</code>, muddati: <b>1 yil</b></li>
+        <li><b>Repository access</b> → <b>Only select repositories</b> → <code>dokon</code></li>
+        <li><b>Permissions</b> → <b>Contents</b> → <b>Read and write</b></li>
+        <li><b>Generate token</b> → kodni nusxalab, shu yerga qo'ying</li>
+      </ol>
+      <p>Kalitni hech kimga bermang. U faqat <code>dokon</code> reposini o'zgartira oladi.</p>
+    </details>
+  </section>
+
+  <div id="editor" hidden>
+    <div class="tabs" role="tablist" aria-label="Bo'limlar">
+      <button class="tab" role="tab" id="tab-products" aria-selected="true" type="button">Tovarlar</button>
+      <button class="tab" role="tab" id="tab-cats" aria-selected="false" type="button">Toifalar</button>
+      <button class="tab" role="tab" id="tab-shop" aria-selected="false" type="button">Do'kon va matnlar</button>
+    </div>
+
+    <section id="pane-products" style="display:grid;gap:12px;margin-top:12px">
+      <div class="tools"><button class="btn primary" id="addProd" type="button">+ Yangi tovar</button><span class="help" id="prodCount"></span></div>
+      <div class="plist" id="plist"></div>
+    </section>
+
+    <section id="pane-cats" hidden style="margin-top:12px">
+      <div class="box">
+        <h2>Toifalar</h2>
+        <p class="help">Do'kon tepasidagi tugmalar. «Hammasi» tugmasi o'zi qo'shiladi. Tovari yo'q toifa saytda ko'rinmaydi.</p>
+        <div id="clist" style="display:grid;gap:10px"></div>
+        <div class="tools"><button class="btn" id="addCat" type="button">+ Yangi toifa</button></div>
+      </div>
+    </section>
+
+    <section id="pane-shop" hidden style="margin-top:12px;display:grid;gap:12px">
+      <div class="box">
+        <h2>Do'kon</h2>
+        <div class="row" id="shopFields"></div>
+      </div>
+      <div class="box">
+        <h2>Saytdagi yozuvlar</h2>
+        <div style="display:grid;gap:10px" id="textFields"></div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<div class="savebar" id="savebar" hidden>
+  <div class="in">
+    <span id="dirtyMsg" class="clean">O'zgarish yo'q</span>
+    <div class="tools">
+      <button class="btn" id="undoBtn" type="button">Bekor qilish</button>
+      <button class="btn" id="previewBtn" type="button">Oldindan ko'rish</button>
+      <button class="btn primary" id="saveBtn" type="button">Saqlash va saytga chiqarish</button>
+    </div>
+  </div>
+  <div class="in"><div id="saveStatus" class="status" hidden style="width:100%;margin-top:8px"></div></div>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+const esc = v => String(v ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const fmt = n => Number(n || 0).toLocaleString("ru-RU").replace(/\s/g, " ");
+const b64enc = str => { const bytes = new TextEncoder().encode(str); let bin = ""; for (let i = 0; i < bytes.length; i += 0x8000) bin += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000)); return btoa(bin); };
+const b64dec = b64 => new TextDecoder().decode(Uint8Array.from(atob(b64.replace(/\n/g, "")), c => c.charCodeAt(0)));
+
+const SHOP_FIELDS = [
+  ["name", "Do'kon nomi"], ["tagline", "Nom ostidagi yozuv"], ["logoLetter", "Logotip harfi"],
+  ["telegramAdmin", "Telegram username (@ belgisisiz)"], ["uzumShop", "Uzum'dagi do'kon havolasi"]
+];
+const TEXT_FIELDS = [
+  ["noteBefore", "Yashil ramka: boshi"], ["noteLink", "Yashil ramka: havola so'zi"], ["noteAfter", "Yashil ramka: davomi"],
+  ["searchPlaceholder", "Qidiruv maydonidagi yozuv"], ["footer", "Eng pastdagi yozuv"],
+  ["buyBtn", "Tugma: Uzum'da sotib olish"], ["soonBtn", "Tugma: tovar hali Uzum'da yo'q"], ["notifyBtn", "Tugma: chiqqanda xabar berish"],
+  ["askBtn", "Tugma: savol berish"], ["orderBtn", "Tugma: logo bilan buyurtma"], ["closeBtn", "Tugma: yopish"],
+  ["soonHint", "Tovar hali Uzum'da bo'lmasa, pastdagi izoh"], ["emptySearch", "Qidiruvda hech narsa topilmasa"],
+  ["uzumMeta", "Belgi: Uzum yetkazish"], ["nasiyaMeta", "Belgi: Nasiya"], ["orderMeta", "Belgi: logo bilan buyurtma"],
+  ["heroKicker", "Banner: tepadagi kichik yozuv"], ["heroTitle", "Banner: sarlavha"], ["heroAccent", "Banner: sariq bilan ajratilgan so'z"],
+  ["heroSub", "Banner: izoh"], ["popularTitle", "Bo'lim nomi: mashhur tovarlar"], ["allTitle", "Bo'lim nomi: barcha tovarlar"],
+  ["badgeUzum", "Kartochka: Uzum'da bor"], ["badgeSoon", "Kartochka: tez orada"], ["benefitsTitle", "Tovar oynasi: afzalliklari sarlavhasi"]
+];
+
+let cfg = {owner:"feruz199328", repo:"dokon", branch:"main", token:""};
+let D = null, saved = "", sha = null, openId = null, confirmId = null;
+try { Object.assign(cfg, JSON.parse(localStorage.getItem("ustoz-admin") || "{}")); } catch(e){}
+$("ghOwner").value = cfg.owner; $("ghRepo").value = cfg.repo; $("ghToken").value = cfg.token || "";
+
+function status(el, kind, msg){ el.className = "status " + kind; el.textContent = msg; el.hidden = false; }
+async function gh(path, opts = {}){
+  const r = await fetch(`https://api.github.com/repos/${cfg.owner}/${cfg.repo}/contents/${path}` + (opts.method ? "" : `?ref=${cfg.branch}&t=${Date.now()}`), {
+    method: opts.method || "GET", cache: "no-store",
+    headers: {"Authorization": "Bearer " + cfg.token, "Accept": "application/vnd.github+json", "X-GitHub-Api-Version": "2022-11-28"},
+    body: opts.body ? JSON.stringify(opts.body) : undefined
+  });
+  return r;
+}
+function explain(code){
+  if (code === 401) return "Kalit noto'g'ri yoki muddati o'tgan. Yangi kalit oling.";
+  if (code === 403) return "Kalitga ruxsat yetarli emas: Contents → Read and write bo'lishi kerak.";
+  if (code === 404) return "Repository topilmadi. Nom va repository to'g'ri yozilganini, kalitga «dokon» tanlanganini tekshiring.";
+  return "GitHub xato qaytardi (" + code + "). Birozdan keyin qayta urinib ko'ring.";
+}
+
+async function connect(){
+  cfg.owner = $("ghOwner").value.trim(); cfg.repo = $("ghRepo").value.trim(); cfg.token = $("ghToken").value.trim();
+  if (!cfg.token) { status($("connStatus"), "err", "Kalitni kiriting."); return; }
+  status($("connStatus"), "info", "Ulanmoqda…");
+  try {
+    const r = await gh("data.json");
+    if (r.status === 404) {
+      const r2 = await fetch(`https://api.github.com/repos/${cfg.owner}/${cfg.repo}`, {headers:{"Authorization":"Bearer "+cfg.token}});
+      if (!r2.ok) { status($("connStatus"), "err", explain(r2.status)); return; }
+      status($("connStatus"), "err", "Repository'da data.json fayli yo'q. Avval data.json'ni GitHub'ga yuklang.");
+      return;
+    }
+    if (!r.ok) { status($("connStatus"), "err", explain(r.status)); return; }
+    const j = await r.json();
+    sha = j.sha; D = JSON.parse(b64dec(j.content)); saved = JSON.stringify(D);
+    if ($("remember").checked) { try { localStorage.setItem("ustoz-admin", JSON.stringify(cfg)); } catch(e){} }
+    $("siteLink").href = `https://${cfg.owner}.github.io/${cfg.repo}/`;
+    status($("connStatus"), "ok", `Ulandi ✓ ${D.products.length} ta tovar yuklandi.`);
+    $("editor").hidden = false; $("savebar").hidden = false; $("logoutBtn").hidden = false;
+    renderAll();
+  } catch(e) { status($("connStatus"), "err", "Internetga ulanib bo'lmadi. Tarmoqni tekshiring."); }
+}
+$("connectBtn").addEventListener("click", connect);
+$("logoutBtn").addEventListener("click", () => {
+  try { localStorage.removeItem("ustoz-admin"); } catch(e){}
+  cfg.token = ""; $("ghToken").value = ""; D = null;
+  $("editor").hidden = true; $("savebar").hidden = true; $("logoutBtn").hidden = true;
+  status($("connStatus"), "info", "Chiqdingiz. Kalit bu qurilmadan o'chirildi.");
+});
+
+/* ---------- tabs ---------- */
+["products","cats","shop"].forEach(t => $("tab-" + t).addEventListener("click", () => {
+  ["products","cats","shop"].forEach(x => { $("tab-" + x).setAttribute("aria-selected", x === t); $("pane-" + x).hidden = x !== t; });
+}));
+
+/* ---------- dirty ---------- */
+function markDirty(){
+  const d = JSON.stringify(D) !== saved;
+  $("dirtyMsg").className = d ? "dirty" : "clean";
+  $("dirtyMsg").textContent = d ? "Saqlanmagan o'zgarishlar bor" : "O'zgarish yo'q";
+  $("saveBtn").disabled = !d; $("undoBtn").disabled = !d;
+}
+$("undoBtn").addEventListener("click", () => { D = JSON.parse(saved); renderAll(); });
+$("previewBtn").addEventListener("click", () => {
+  try { localStorage.setItem("ustoz-preview", JSON.stringify(D)); } catch(e) { status($("saveStatus"), "err", "Brauzer oldindan ko'rishga ruxsat bermadi."); return; }
+  window.open("./?preview=1", "_blank", "noopener");
+  status($("saveStatus"), "info", "Oldindan ko'rish yangi oynada ochildi. Uni faqat siz ko'rasiz. Mijozlarga chiqarish uchun «Saqlash»ni bosing.");
+});
+window.addEventListener("beforeunload", e => { if (D && JSON.stringify(D) !== saved) { e.preventDefault(); e.returnValue = ""; } });
+
+function renderAll(){ renderProducts(); renderCats(); renderShop(); markDirty(); }
+
+/* ---------- products ---------- */
+function catOptions(sel){ return D.categories.map(c => `<option value="${esc(c.id)}"${c.id === sel ? " selected" : ""}>${esc(c.name)}</option>`).join(""); }
+function renderProducts(){
+  $("prodCount").textContent = D.products.length + " ta tovar · tartibi saytdagi «Mashhurlari» tartibi";
+  $("plist").innerHTML = D.products.map((p, i) => {
+    const st = p.hidden ? `<span class="pill hid">Yashirin</span>` : p.type === "order" ? `<span class="pill on">Buyurtma</span>` : p.uzum ? `<span class="pill on">Uzum ✓</span>` : `<span class="pill off">Uzum yo'q</span>`;
+    return `<details class="prod" data-i="${i}"${openId === p.id ? " open" : ""}>
+      <summary>
+        <div class="thumb">${p.img ? `<img src="${esc(imgSrc(p.img))}" alt="">` : "Rasm<br>yo'q"}</div>
+        <div style="min-width:0"><div class="pn">${esc(p.name || "Nomsiz tovar")}</div><div class="pm">${fmt(p.price)} so'm · ${esc((D.categories.find(c => c.id === p.cat) || {}).name || "toifasiz")}</div></div>
+        ${st}
+      </summary>
+      <div class="pbody">
+        <div class="field"><label for="f-name-${i}">Nomi</label><input id="f-name-${i}" type="text" data-f="name" value="${esc(p.name)}"></div>
+        <div class="row">
+          <div class="field"><label for="f-price-${i}">Narx (so'm)</label><input id="f-price-${i}" type="number" inputmode="numeric" min="0" step="1000" data-f="price" value="${esc(p.price)}"></div>
+          <div class="field"><label for="f-unit-${i}">Birlik (masalan: 10 dona)</label><input id="f-unit-${i}" type="text" data-f="unit" value="${esc(p.unit)}"></div>
+        </div>
+        <div class="row">
+          <div class="field"><label for="f-cat-${i}">Toifa</label><select id="f-cat-${i}" data-f="cat">${catOptions(p.cat)}</select></div>
+          <div class="field"><label for="f-type-${i}">Qanday sotiladi</label><select id="f-type-${i}" data-f="type">
+            <option value="uzum"${p.type !== "order" ? " selected" : ""}>Uzum orqali</option>
+            <option value="order"${p.type === "order" ? " selected" : ""}>Telegram'da buyurtma (logo bilan)</option></select></div>
+        </div>
+        <div class="field"><label for="f-uzum-${i}">Uzum'dagi tovar havolasi</label><input id="f-uzum-${i}" type="url" placeholder="https://uzum.uz/uz/product/..." data-f="uzum" value="${esc(p.uzum)}"></div>
+        <div class="row">
+          <div class="field"><label for="f-for-${i}">Kimga mos</label><input id="f-for-${i}" type="text" data-f="for" value="${esc(p.for)}"></div>
+          <div class="field"><label for="f-label-${i}">Rasm ustidagi kichik yozuv</label><input id="f-label-${i}" type="text" data-f="label" value="${esc(p.label)}"></div>
+          <div class="field"><label for="f-tag-${i}">Qizil belgi (masalan: Yangi, -10%)</label><input id="f-tag-${i}" type="text" data-f="tag" value="${esc(p.tag)}"></div>
+        </div>
+        <div class="field"><label for="f-desc-${i}">Tavsif</label><textarea id="f-desc-${i}" data-f="desc" rows="3">${esc(p.desc)}</textarea></div>
+        <div class="field"><label for="f-points-${i}">Afzalliklari (har biri yangi qatorda)</label><textarea id="f-points-${i}" data-f="points" rows="3">${esc((p.points || []).join("\n"))}</textarea></div>
+        <div class="field"><span class="lbl">Rasm</span>
+          <div class="imgrow">
+            <div class="thumb">${p.img ? `<img src="${esc(imgSrc(p.img))}" alt="">` : "Rasm<br>yo'q"}</div>
+            <label class="btn sm" for="f-file-${i}">Rasm yuklash</label><input id="f-file-${i}" type="file" accept="image/*" data-upload hidden>
+            ${p.img ? `<button class="btn sm" type="button" data-act="noimg">Rasmni olib tashlash</button>` : ""}
+          </div>
+          <div class="status" data-imgstatus hidden></div>
+        </div>
+        <label class="check" for="f-hidden-${i}"><input id="f-hidden-${i}" type="checkbox" data-f="hidden"${p.hidden ? " checked" : ""}> Saytda yashirish (o'chirmasdan)</label>
+        <div class="tools">
+          <button class="btn sm" type="button" data-act="up"${i === 0 ? " disabled" : ""}>↑ Yuqoriga</button>
+          <button class="btn sm" type="button" data-act="down"${i === D.products.length - 1 ? " disabled" : ""}>↓ Pastga</button>
+          <button class="btn sm" type="button" data-act="copy">Nusxa olish</button>
+          <button class="btn sm danger" type="button" data-act="del">O'chirish</button>
+        </div>
+        ${confirmId === p.id ? `<div class="confirm">«${esc(p.name)}» o'chirilsinmi? <button class="btn sm danger" type="button" data-act="del-yes">Ha, o'chirish</button><button class="btn sm" type="button" data-act="del-no">Yo'q</button></div>` : ""}
+      </div>
+    </details>`;
+  }).join("");
+  $("plist").querySelectorAll("details.prod").forEach(el => {
+    const i = +el.dataset.i, p = D.products[i];
+    el.addEventListener("toggle", () => { if (el.open) openId = p.id; else if (openId === p.id) openId = null; });
+    el.querySelectorAll("[data-f]").forEach(inp => {
+      const ev = inp.tagName === "SELECT" || inp.type === "checkbox" ? "change" : "input";
+      inp.addEventListener(ev, () => {
+        const f = inp.dataset.f;
+        if (f === "price") p.price = Math.max(0, Math.round(+inp.value || 0));
+        else if (f === "points") p.points = inp.value.split("\n").map(s => s.trim()).filter(Boolean);
+        else if (f === "hidden") p.hidden = inp.checked;
+        else p[f] = inp.value;
+        if (["name","price","cat","type","uzum","hidden"].includes(f)) refreshSummary(el, p);
+        markDirty();
+      });
+    });
+    el.querySelectorAll("[data-act]").forEach(b => b.addEventListener("click", () => act(b.dataset.act, i)));
+    const up = el.querySelector("[data-upload]");
+    up.addEventListener("change", () => uploadImage(up.files[0], p, el));
+  });
+}
+function refreshSummary(el, p){
+  const s = el.querySelector("summary");
+  s.querySelector(".pn").textContent = p.name || "Nomsiz tovar";
+  s.querySelector(".pm").textContent = `${fmt(p.price)} so'm · ${(D.categories.find(c => c.id === p.cat) || {}).name || "toifasiz"}`;
+  const pill = s.querySelector(".pill");
+  const [cls, txt] = p.hidden ? ["hid","Yashirin"] : p.type === "order" ? ["on","Buyurtma"] : p.uzum ? ["on","Uzum ✓"] : ["off","Uzum yo'q"];
+  pill.className = "pill " + cls; pill.textContent = txt;
+}
+function imgSrc(img){ return /^https?:/.test(img) ? img : `https://${cfg.owner}.github.io/${cfg.repo}/${img}`; }
+function act(a, i){
+  const P = D.products, p = P[i];
+  if (a === "up" && i > 0) { [P[i-1], P[i]] = [P[i], P[i-1]]; openId = p.id; }
+  if (a === "down" && i < P.length - 1) { [P[i+1], P[i]] = [P[i], P[i+1]]; openId = p.id; }
+  if (a === "copy") { const c = JSON.parse(JSON.stringify(p)); c.id = "p" + Date.now().toString(36); c.name += " (nusxa)"; P.splice(i + 1, 0, c); openId = c.id; }
+  if (a === "del") confirmId = p.id;
+  if (a === "del-no") confirmId = null;
+  if (a === "del-yes") { P.splice(i, 1); confirmId = null; }
+  if (a === "noimg") p.img = "";
+  renderProducts(); markDirty();
+}
+$("addProd").addEventListener("click", () => {
+  const id = "p" + Date.now().toString(36);
+  D.products.unshift({id, cat: (D.categories[0] || {}).id || "", type:"uzum", name:"Yangi tovar", label:"", price:0, unit:"", for:"", tag:"Yangi", desc:"", points:[], uzum:"", img:"", hidden:true});
+  openId = id; renderProducts(); markDirty();
+  $("plist").querySelector("details.prod").scrollIntoView({behavior:"smooth", block:"start"});
+});
+
+/* rasm: kichraytirib, GitHub'ga images/ papkasiga yuklaymiz */
+async function uploadImage(file, p, el){
+  const st = el.querySelector("[data-imgstatus]");
+  if (!file) return;
+  status(st, "info", "Rasm tayyorlanmoqda…");
+  try {
+    const url = URL.createObjectURL(file);
+    const img = await new Promise((res, rej) => { const im = new Image(); im.onload = () => res(im); im.onerror = rej; im.src = url; });
+    const max = 1000, k = Math.min(1, max / Math.max(img.width, img.height));
+    const c = document.createElement("canvas"); c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
+    const ctx = c.getContext("2d"); ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, c.width, c.height); ctx.drawImage(img, 0, 0, c.width, c.height);
+    URL.revokeObjectURL(url);
+    const data = c.toDataURL("image/jpeg", 0.85).split(",")[1];
+    const path = `images/${p.id}-${Date.now().toString(36)}.jpg`;
+    status(st, "info", "GitHub'ga yuklanmoqda…");
+    const r = await gh(path, {method:"PUT", body:{message:`Rasm: ${p.name}`, content:data, branch:cfg.branch}});
+    if (!r.ok) { status(st, "err", explain(r.status)); return; }
+    p.img = path; openId = p.id; renderProducts(); markDirty();
+    const st2 = $("plist").querySelector(`details.prod[open] [data-imgstatus]`);
+    if (st2) status(st2, "ok", "Rasm yuklandi ✓ Saytda ko'rinishi uchun «Saqlash»ni bosing. Rasm 1–2 daqiqada ochiladi.");
+  } catch(e) { status(st, "err", "Rasmni o'qib bo'lmadi. JPG yoki PNG fayl tanlang."); }
+}
+
+/* ---------- categories ---------- */
+function renderCats(){
+  $("clist").innerHTML = D.categories.map((c, i) => {
+    const used = D.products.filter(p => p.cat === c.id).length;
+    return `<div class="catrow" data-i="${i}">
+      <div class="field"><label for="c-${i}">Toifa nomi · ${used} ta tovar</label><input id="c-${i}" type="text" value="${esc(c.name)}"></div>
+      <div class="tools">
+        <button class="btn sm" type="button" data-act="up"${i === 0 ? " disabled" : ""} aria-label="Yuqoriga">↑</button>
+        <button class="btn sm" type="button" data-act="down"${i === D.categories.length - 1 ? " disabled" : ""} aria-label="Pastga">↓</button>
+        <button class="btn sm danger" type="button" data-act="del"${used ? ` disabled title="Avval tovarlarni boshqa toifaga o'tkazing"` : ""}>O'chirish</button>
+      </div></div>`;
+  }).join("");
+  $("clist").querySelectorAll(".catrow").forEach(row => {
+    const i = +row.dataset.i, C = D.categories;
+    row.querySelector("input").addEventListener("input", e => { C[i].name = e.target.value; markDirty(); });
+    row.querySelectorAll("[data-act]").forEach(b => b.addEventListener("click", () => {
+      const a = b.dataset.act;
+      if (a === "up") [C[i-1], C[i]] = [C[i], C[i-1]];
+      if (a === "down") [C[i+1], C[i]] = [C[i], C[i+1]];
+      if (a === "del") C.splice(i, 1);
+      renderCats(); renderProducts(); markDirty();
+    }));
+  });
+}
+$("addCat").addEventListener("click", () => { D.categories.push({id:"c" + Date.now().toString(36), name:"Yangi toifa"}); renderCats(); renderProducts(); markDirty(); });
+
+/* ---------- shop & texts ---------- */
+function renderShop(){
+  D.shop = D.shop || {}; D.texts = D.texts || {};
+  $("shopFields").innerHTML = SHOP_FIELDS.map(([k, l]) => `<div class="field"><label for="s-${k}">${l}</label><input id="s-${k}" type="text" data-k="${k}" value="${esc(D.shop[k])}"></div>`).join("");
+  $("textFields").innerHTML = TEXT_FIELDS.map(([k, l]) => `<div class="field"><label for="t-${k}">${l}</label>${(D.texts[k] || "").length > 60 ? `<textarea id="t-${k}" data-k="${k}" rows="2">${esc(D.texts[k])}</textarea>` : `<input id="t-${k}" type="text" data-k="${k}" value="${esc(D.texts[k])}">`}</div>`).join("");
+  $("shopFields").querySelectorAll("[data-k]").forEach(inp => inp.addEventListener("input", () => { D.shop[inp.dataset.k] = inp.value.trim() === "" ? "" : inp.value; markDirty(); }));
+  $("textFields").querySelectorAll("[data-k]").forEach(inp => inp.addEventListener("input", () => { D.texts[inp.dataset.k] = inp.value; markDirty(); }));
+}
+
+/* ---------- save ---------- */
+$("saveBtn").addEventListener("click", async () => {
+  const st = $("saveStatus");
+  const bad = D.products.find(p => p.uzum && !/^https:\/\//.test(p.uzum));
+  if (bad) { status(st, "err", `«${bad.name}»: Uzum havolasi https:// bilan boshlanishi kerak.`); return; }
+  if (D.shop.telegramAdmin) D.shop.telegramAdmin = D.shop.telegramAdmin.replace(/^@/, "").trim();
+  $("saveBtn").disabled = true; status(st, "info", "Saqlanmoqda…");
+  const body = () => ({message: "Admin: do'kon yangilandi", content: b64enc(JSON.stringify(D, null, 2) + "\n"), sha, branch: cfg.branch});
+  try {
+    let r = await gh("data.json", {method:"PUT", body: body()});
+    if (r.status === 409 || r.status === 422) {          // kimdir boshqa joydan o'zgartirgan bo'lsa — yangi sha bilan qayta
+      const g = await gh("data.json"); if (g.ok) { sha = (await g.json()).sha; r = await gh("data.json", {method:"PUT", body: body()}); }
+    }
+    if (!r.ok) { status(st, "err", explain(r.status)); markDirty(); return; }
+    sha = (await r.json()).content.sha; saved = JSON.stringify(D); markDirty();
+    status(st, "ok", "Saqlandi ✓ 1–2 daqiqadan keyin saytda va botda ko'rinadi.");
+  } catch(e) { status(st, "err", "Internetga ulanib bo'lmadi. O'zgarishlar shu yerda turibdi, qayta bosing."); markDirty(); }
+});
+
+if (cfg.token) connect();
+</script>
+</body>
+</html>
